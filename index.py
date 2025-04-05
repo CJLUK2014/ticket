@@ -1,49 +1,48 @@
 # index.py
 import discord
-import os 
-
-TOKEN = os.environ.get('DISCORD_BOT_TOKEN')  # And we added this line!
+import os
 from discord.ext import commands
+
+TOKEN = os.environ.get('DISCORD_BOT_TOKEN')
 
 PREFIX = '!'
 bot = commands.Bot(command_prefix=PREFIX, intents=discord.Intents.all())
 
-TICKET_CHANNEL_ID = YOUR_TICKET_CHANNEL_ID  # Replace with your ticket channel ID
-SUPPORT_ROLE_ID = YOUR_SUPPORT_ROLE_ID  # Replace with your support role ID
+TICKET_CHANNEL_ID = 1246630234913247342
+SUPPORT_ROLE_ID = 1357999371966349533
 
-# Dictionary to store category info and open ticket counts
 TICKET_CATEGORIES = {
     "vehicle": {
         "name": "Vehicle Orders",
-        "emoji_id": YOUR_VEHICLE_EMOJI_ID,  # Replace with your emoji ID
-        "category_id": YOUR_VEHICLE_CATEGORY_ID,  # Replace with your category ID
-        "message": "...",
+        "emoji_id": 1358002486899642440,
+        "category_id": 1355398688822001694,
+        "message": "Hello! Thanks for ordering! What vehicle goodies are you after today? Let me know if you want a **Livery** or some awesome **ELS**!",
         "open_count": 0
     },
     "discord": {
         "name": "Discord Orders",
-        "emoji_id": YOUR_DISCORD_EMOJI_ID,  # Replace with your emoji ID
-        "category_id": YOUR_DISCORD_CATEGORY_ID,  # Replace with your category ID
-        "message": "...",
+        "emoji_id": 1358002874574967015,
+        "category_id": 1357997919957028914,
+        "message": "Hey! So you need some Discord help? Tell me what you're looking for! Is it a **Custom Bot**, a full **Server Setup**, or maybe help with **Channels, Roles, and Permissions**?",
         "open_count": 0
     },
     "clothing": {
         "name": "Clothing Orders",
-        "emoji_id": YOUR_CLOTHING_EMOJI_ID,  # Replace with your emoji ID
-        "category_id": YOUR_CLOTHING_CATEGORY_ID,  # Replace with your category ID
-        "message": "...",
+        "emoji_id": 1358002571540959345,
+        "category_id": 1358003614328557708,
+        "message": "Hi there! Ready for some new threads? Tell me if you're after **Shirts**, **Pants**, or a cool **Full Set**!",
         "open_count": 0
     },
     "graphics": {
         "name": "Graphic Orders",
-        "emoji_id": YOUR_GRAPHICS_EMOJI_ID,  # Replace with your emoji ID
-        "category_id": YOUR_GRAPHICS_CATEGORY_ID,  # Replace with your category ID
-        "message": "...",
+        "emoji_id": 1358002515320377466,
+        "category_id": 1358003871443587314,
+        "message": "Hello! Looking for some awesome graphics? Let me know if you need **Logos**, **Banners**, or some cool **GFX**!",
         "open_count": 0
     }
 }
 
-TICKET_EMBED_MESSAGE_ID = None  # We'll store the ID of the embed message here
+TICKET_EMBED_MESSAGE_ID = None
 
 @bot.event
 async def on_ready():
@@ -57,12 +56,20 @@ async def update_ticket_counts():
         print(f"Error: Ticket channel not found with ID {TICKET_CHANNEL_ID}")
         return
 
-    embed = discord.Embed(title="Please select what you need by reacting with the corresponding emoji!", color=0x00ff00)
+    embed = discord.Embed(title="Pick what you need by reacting with the right emoji!", color=0x00ff00)
     description = ""
     for category_key, data in TICKET_CATEGORIES.items():
         emoji = bot.get_emoji(data["emoji_id"])
         if emoji:
             description += f"{emoji} **{data['name']} |** ({data['open_count']} Open)\n"
+            if category_key == "vehicle":
+                description += "- Liveries\n- ELS\n"
+            elif category_key == "discord":
+                description += "- Custom Bots\n- Server Setups\n- Channel / Roles / Perms\n"
+            elif category_key == "clothing":
+                description += "- Shirts\n- Pants\n- Full Sets\n"
+            elif category_key == "graphics":
+                description += "- Logos\n- Banners\n- GFX\n"
         else:
             print(f"Error: Emoji not found with ID {data['emoji_id']} for {data['name']}")
             return
@@ -85,12 +92,20 @@ async def send_ticket_embed():
         print(f"Error: Ticket channel not found with ID {TICKET_CHANNEL_ID}")
         return
 
-    embed = discord.Embed(title="Please select what you need by reacting with the corresponding emoji!", color=0x00ff00)
+    embed = discord.Embed(title="Pick what you need by reacting with the right emoji!", color=0x00ff00)
     description = ""
     for category_key, data in TICKET_CATEGORIES.items():
         emoji = bot.get_emoji(data["emoji_id"])
         if emoji:
             description += f"{emoji} **{data['name']} |** ({data['open_count']} Open)\n"
+            if category_key == "vehicle":
+                description += "- Liveries\n- ELS\n"
+            elif category_key == "discord":
+                description += "- Custom Bots\n- Server Setups\n- Channel / Roles / Perms\n"
+            elif category_key == "clothing":
+                description += "- Shirts\n- Pants\n- Full Sets\n"
+            elif category_key == "graphics":
+                description += "- Logos\n- Banners\n- GFX\n"
         else:
             print(f"Error: Emoji not found with ID {data['emoji_id']} for {data['name']}")
             return
@@ -107,7 +122,7 @@ async def send_ticket_embed():
 async def orderhereembed(ctx):
     """Sends the ticket order embed to the ticket channel."""
     await send_ticket_embed()
-    await ctx.send("The order embed has been sent!", delete_after=5) # Optional confirmation message
+    await ctx.send("The order embed has been sent!", delete_after=5)
 
 @bot.event
 async def on_raw_reaction_add(payload):
@@ -157,7 +172,6 @@ async def on_raw_reaction_add(payload):
             await ticket_channel.send(f"Members with the <@&{SUPPORT_ROLE_ID}> role can now help you!")
             await member.send(f"Your **{data['name']}** ticket has been created: <#{ticket_channel.id}>")
 
-            # Increase the open ticket count and update the embed
             TICKET_CATEGORIES[category_key]["open_count"] += 1
             await update_ticket_counts()
 
@@ -174,11 +188,10 @@ async def close(ctx, *, reason="No reason provided"):
             if support_role in ctx.author.roles or ctx.author == ctx.guild.owner:
                 await ctx.channel.send(f"This ticket is now being closed by <@{ctx.author.id}>. Reason: {reason}")
                 await ctx.channel.delete()
-                # Decrease the open ticket count and update the embed
                 TICKET_CATEGORIES[category_key]["open_count"] -= 1
                 await update_ticket_counts()
             else:
-                await ctx.send("You do not have permission to close this ticket.")
+                await ctx.send("You don't have permission to close this ticket.")
             return
     await ctx.send("This command can only be used in a ticket channel.")
 
