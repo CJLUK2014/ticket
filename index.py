@@ -1,8 +1,10 @@
+# index.py
 import discord
-from discord.ext import commands
-import os
+import os 
 
-TOKEN = 'YOUR_BOT_TOKEN'
+TOKEN = os.environ.get('DISCORD_BOT_TOKEN')  # And we added this line!
+from discord.ext import commands
+
 PREFIX = '!'
 bot = commands.Bot(command_prefix=PREFIX, intents=discord.Intents.all())
 
